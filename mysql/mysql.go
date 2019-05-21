@@ -129,6 +129,7 @@ func (db *DB) ExecTx(ar *ActiveRecord, tx *sql.Tx) (rs *ResultSet, err error) {
 	return db.ExecSQLTx(ar.SQL(), tx, ar.values...)
 }
 func (db *DB) ExecSQLTx(sqlStr string, tx *sql.Tx, values ...interface{}) (rs *ResultSet, err error) {
+	sqlStr = strings.Replace(sqlStr, db.Config.TablePrefixSqlIdentifier, db.Config.TablePrefix, -1)
 	var stmt *sql.Stmt
 	var result sql.Result
 	rs = new(ResultSet)
@@ -152,6 +153,7 @@ func (db *DB) Exec(ar *ActiveRecord) (rs *ResultSet, err error) {
 	return db.ExecSQL(ar.SQL(), ar.values...)
 }
 func (db *DB) ExecSQL(sqlStr string, values ...interface{}) (rs *ResultSet, err error) {
+	sqlStr = strings.Replace(sqlStr, db.Config.TablePrefixSqlIdentifier, db.Config.TablePrefix, -1)
 	var stmt *sql.Stmt
 	var result sql.Result
 	rs = new(ResultSet)
@@ -504,6 +506,7 @@ func (ar *ActiveRecord) Values() []interface{} {
 	return ar.values
 }
 func (ar *ActiveRecord) SQL() string {
+
 	if ar.currentSQL != "" {
 		return ar.currentSQL
 	}
@@ -525,6 +528,7 @@ func (ar *ActiveRecord) SQL() string {
 	case "delete":
 		ar.currentSQL = ar.getDeleteSQL()
 	}
+	ar.currentSQL = strings.Replace(ar.currentSQL, ar.tablePrefixSqlIdentifier, ar.tablePrefix, -1)
 	return ar.currentSQL
 }
 func (ar *ActiveRecord) getUpdateSQL() string {
